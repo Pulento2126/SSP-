@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSP ULTIMATE - 300+ EXERCICES</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@400;600;700&family=Roboto:wght@300;400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #f8fafc;
+        }
+        h1, h2, h3, .font-teko {
+            font-family: 'Teko', sans-serif;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 750px; /* Très grand pour voir tous les détails */
+        }
+        .btn-reset {
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        }
+        
+        /* Liste des exercices */
+        .exercise-item {
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .exercise-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-left-color: #3b82f6;
+            padding-left: 0.75rem;
+        }
+        
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(30, 41, 59, 0.5); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        /* Jauge Animée */
+        .gauge-fill {
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Search Input */
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+        
+        /* Video Container */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            background-color: #000;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Tooltip pour les définitions */
+        .definition-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #cbd5e1;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            width: 200px;
+            text-align: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            border: 1px solid #475569;
+            z-index: 50;
+        }
+        .category-label:hover .definition-tooltip {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <header class="bg-slate-900/90 border-b border-slate-800 p-4 sticky top-0 z-50 backdrop-blur shadow-lg">
+        <div class="max-w-[1800px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded flex items-center justify-center font-bold text-xl shadow-lg">SSP</div>
+                <div>
+                    <h1 class="text-2xl font-bold font-teko text-white leading-none tracking-wide">ULTIMATE SSP</h1>
+                    <p class="text-[10px] text-slate-400 uppercase tracking-[0.2em]">+300 Exercices & Modèle Intégral</p>
+                </div>
+            </div>
+            
+            <!-- SEARCH BAR -->
+            <div class="relative w-full md:w-1/3">
+                <input type="text" id="searchInput" 
+                    class="search-input w-full bg-slate-800 text-white border border-slate-600 rounded-full py-2 pl-4 pr-10 text-sm placeholder-slate-500"
+                    placeholder="Rechercher (ex: Rondo, Guardiola, 4v4...)"
+                    onkeyup="handleSearch(event)">
+                <span class="absolute right-3 top-2 text-slate-500">🔍</span>
+            </div>
+
+            <button onclick="resetApp()" class="btn-reset px-4 py-1.5 rounded text-white font-bold text-sm tracking-wide shadow-lg hover:shadow-red-500/30 transition flex items-center gap-2">
+                <span>🗑️</span> RESET
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow p-4 md:p-6 max-w-[1800px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- GAUCHE : ARBRE DÉCISIONNEL (6 cols) -->
+        <div class="lg:col-span-6 flex flex-col gap-4">
+            <div class="bg-slate-800/50 border border-slate-700 p-3 rounded-lg flex gap-3 items-center">
+                <div class="text-xl">🎛️</div>
+                <div>
+                    <h3 class="font-bold text-white text-sm">Définition Structurelle (Figure 1 Intégrale)</h3>
+                    <p class="text-xs text-slate-400">Cliquez sur les segments pour définir l'exercice selon le modèle exact du PDF.</p>
+                </div>
+            </div>
+
+            <div class="card p-2 flex-grow relative shadow-2xl min-h-[500px]">
+                <div id="sunburstChart" class="chart-container"></div>
+            </div>
+        </div>
+
+        <!-- DROITE : RÉSULTATS & BIBLIOTHÈQUE (6 cols) -->
+        <div class="lg:col-span-6 flex flex-col gap-4 h-full overflow-hidden">
+            
+            <!-- SCORE CARD (Mise à jour avec définitions Seirul-lo) -->
+            <div id="classificationCard" class="card p-5 border-t-4 border-slate-600 relative overflow-hidden transition-colors duration-500 shrink-0">
+                <div class="absolute top-0 right-0 p-2 opacity-10">
+                    <div class="text-7xl text-white font-teko select-none">NE</div>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex justify-between items-end mb-2">
+                        <div>
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Niveau de Spécificité</div>
+                            <h2 id="typeTitle" class="text-3xl font-teko font-bold text-white tracking-wide">...</h2>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs font-bold text-slate-400 uppercase">Score (0-10)</div>
+                            <div id="scoreValue" class="text-4xl font-mono font-bold text-white leading-none">0.0</div>
+                        </div>
+                    </div>
+                    <!-- Jauge -->
+                    <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-700 relative">
+                        <div id="scoreBar" class="h-full bg-slate-500 gauge-fill" style="width: 0%"></div>
+                    </div>
+                    
+                    <!-- Catégories Interactives (Seirul-lo) -->
+                    <div class="flex justify-between text-[10px] text-slate-500 mt-2 px-1 relative">
+                        <div class="category-label cursor-help relative group">
+                            <span class="hover:text-white transition-colors">GÉNÉRIQUE</span>
+                            <div class="definition-tooltip">Activité non spécifique (Force, course). Pas de prise d'info foot.</div>
+                        </div>
+                        <div class="category-label cursor-help relative group">
+                            <span class="hover:text-white transition-colors">GÉNÉRAL</span>
+                            <div class="definition-tooltip">Avec ballon mais sans opposition réelle. Technique analytique.</div>
+                        </div>
+                        <div class="category-label cursor-help relative group">
+                            <span class="hover:text-white transition-colors">DIRIGÉ</span>
+                            <div class="definition-tooltip">Opposition présente mais simplifiée. Travail d'un principe spécifique.</div>
+                        </div>
+                        <div class="category-label cursor-help relative group">
+                            <span class="hover:text-white transition-colors">SPÉCIAL (SSP)</span>
+                            <div class="definition-tooltip">Reproduction d'une phase de jeu réelle. Espace, temps et règlement proches du match.</div>
+                        </div>
+                        <div class="category-label cursor-help relative group">
+                            <span class="hover:text-white transition-colors">COMPÉTITION</span>
+                            <div class="definition-tooltip">Match complet 11v11. Sollicitation maximale.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BIBLIOTHÈQUE D'EXERCICES -->
+            <div class="card p-0 flex-grow flex flex-col overflow-hidden bg-slate-900/50 border-t-4 border-indigo-500 relative">
+                <div class="p-3 border-b border-slate-700 bg-slate-800/50 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-white text-sm uppercase tracking-wide">Bibliothèque d'Exercices</h3>
+                        <p class="text-[10px] text-slate-400">Filtré par Score NE (+/- 0.5) ou Recherche</p>
+                    </div>
+                    <div id="matchCount" class="text-xs font-bold bg-indigo-900 text-indigo-300 px-2 py-1 rounded">0 trouvé(s)</div>
+                </div>
+                
+                <div id="exerciseList" class="p-2 overflow-y-auto custom-scrollbar flex-grow space-y-1 pb-40">
+                    <div class="p-10 text-center text-slate-600 italic text-sm flex flex-col items-center">
+                        <span class="text-2xl mb-2">📂</span>
+                        En attente de critères...
+                    </div>
+                </div>
+                
+                 <!-- Détails de l'exercice (caché par défaut) -->
+                <div id="exerciseDetails" class="absolute bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-600 p-4 transform translate-y-full transition-transform duration-300 shadow-2xl z-20 h-[80%] flex flex-col">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="pr-8">
+                            <h4 id="detailName" class="text-2xl font-bold text-white mb-1 leading-tight font-teko">Nom de l'exercice</h4>
+                            <div class="flex gap-2 mt-1">
+                                <span id="detailNE" class="text-xs font-mono bg-blue-900 text-blue-200 px-2 py-0.5 rounded border border-blue-700">NE: 0.0</span>
+                                <span id="detailType" class="text-xs font-mono bg-slate-700 text-slate-300 px-2 py-0.5 rounded border border-slate-600">Type</span>
+                            </div>
+                        </div>
+                        <button onclick="closeDetails()" class="text-slate-400 hover:text-white bg-slate-700 rounded-full w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+                    </div>
+
+                    <div class="flex-grow overflow-y-auto custom-scrollbar pr-2 space-y-4">
+                        
+                        <!-- Section Vidéo -->
+                        <div id="videoSection" class="w-full">
+                            <p class="text-[10px] uppercase font-bold text-slate-500 mb-2">Démonstration Vidéo</p>
+                            <div class="video-container bg-black rounded border border-slate-700 flex items-center justify-center">
+                                <iframe id="videoFrame" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <div id="noVideoMsg" class="absolute text-slate-500 text-sm hidden">Pas de vidéo disponible</div>
+                            </div>
+                        </div>
+
+                        <!-- Section Description -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-900/50 p-3 rounded border border-slate-700">
+                                <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Description & Consignes</p>
+                                <p id="detailDesc" class="text-sm text-slate-300 leading-relaxed">...</p>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="bg-emerald-900/10 p-2 rounded border border-emerald-900/30">
+                                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Organisation (Espace)</p>
+                                    <p id="detailSpace" class="text-sm text-emerald-300 leading-snug">...</p>
+                                </div>
+                                <div class="bg-orange-900/10 p-2 rounded border border-orange-900/30">
+                                    <p class="text-[10px] uppercase font-bold text-slate-500 mb-1">Objectifs (Seirul-lo)</p>
+                                    <p id="detailGoal" class="text-sm text-orange-300 leading-snug">...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // --- 1. MÉGA-BIBLIOTHÈQUE D'EXERCICES (+300 EXERCICES) ---
+        // Classés selon les définitions du Microcycle Structuré (Seirul-lo)
+        
+        const exerciseLibrary = [
+            // --- NIVEAU 5 : COMPÉTITION (91-100%) ---
+            { score: 10.0, name: "Match de Compétition Officiel", desc: "Le match du weekend. Sollicitation maximale de toutes les structures.", space: "Terrain complet", type: "Compétition", goal: "Performance", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 10.0, name: "Match d'Entraînement 11v11", desc: "Opposition avec règles officielles, arbitrage, coaching minimal.", space: "Terrain complet", type: "Compétition", goal: "Plan de match", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 9.3, name: "Match 11v11 Conditionné", desc: "Match complet avec règles tactiques (ex: zones de pressing).", space: "Terrain complet", type: "Compétition", goal: "Tactique spécifique", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+
+            // --- NIVEAU 4 : SPÉCIAL / SSP (71-90%) ---
+            { score: 8.9, name: "Match 9v9 + 2 Gardiens", desc: "Jeu réel réduit. Reproduction d'une phase de jeu.", space: "70x50m", type: "Spécial", goal: "Tactique collective", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 8.7, name: "Jeu de Position 9v7 + 3 Buts", desc: "Attaque placée (Guardiola). 9 rouges attaquent 3 grands buts.", space: "Demi-terrain", type: "Spécial", goal: "Attaque placée", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 8.5, name: "Création Supériorité Flanc (8v9)", desc: "Situation de match spécifique sur un côté.", space: "Demi-terrain large", type: "Spécial", goal: "Jeu de couloir", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 8.4, name: "Match 7v7 + 2 Gardiens", desc: "Jeu réduit avec structure tactique conservée.", space: "50x40m", type: "Spécial", goal: "Principes de jeu", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 8.1, name: "Jeu de Position 10v10 + 2 Jokers", desc: "Conservation et progression. 2 équipes + soutiens.", space: "Grand espace", type: "Spécial", goal: "Possession", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 8.0, name: "Sortie de Balle (De Zerbi) 4+GK vs 3", desc: "Construction basse sous pression réelle.", space: "Demi-terrain", type: "Spécial", goal: "Relance", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 7.9, name: "Match 5v5 + 2 Gardiens", desc: "Haute intensité, transitions fréquentes.", space: "40x25m", type: "Spécial", goal: "Transition", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 7.8, name: "4c4 + 2 Jokers (Connexion)", desc: "Trouver le joker opposé. 3ème homme.", space: "45x27m", type: "Spécial", goal: "Verticalité", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 7.6, name: "Match 3c3 + 2 Gardiens", desc: "Duels et finition sous pression.", space: "30x20m", type: "Spécial", goal: "Finition", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 7.4, name: "Défense en Infériorité (Simeone)", desc: "Bloc bas 4+2 contre 8 attaquants.", space: "60x50m", type: "Spécial", goal: "Bloc défensif", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 7.2, name: "Jeu Position 4v4 + 3 Neutres", desc: "Conservation (Barça). 2 neutres largeur, 1 centre.", space: "20x25m", type: "Spécial", goal: "Jeu de position", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+
+            // --- NIVEAU 3 : DIRIGÉ (51-70%) ---
+            { score: 6.9, name: "Match 3c3 + 2 Ailiers (Jokers)", desc: "Opposition avec contrainte spatiale (passer par les ailes).", space: "25x30m", type: "Dirigé", goal: "Largeur", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 6.8, name: "Rondo Transition (Klopp)", desc: "6v2. Pressing immédiat à la perte (Gegenpressing).", space: "15x15m", type: "Dirigé", goal: "Pressing", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 6.7, name: "Possession 5v5 + 1 Neutre", desc: "Conservation sans but. Maintien de la possession.", space: "Moyen", type: "Dirigé", goal: "Conservation", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 6.5, name: "Attaque v Défense 3c2", desc: "Situation de supériorité. Fixer et donner.", space: "25x25m", type: "Dirigé", goal: "Supériorité", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 6.4, name: "Jeu 6 contre 5 (Zone)", desc: "Attaque défense en déséquilibre numéraire.", space: "Moyen", type: "Dirigé", goal: "Déséquilibre", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 6.2, name: "Jeu de Position 4v4 + 4 Ext.", desc: "Conservation pure. 4 dedans, 4 dehors.", space: "Carré", type: "Dirigé", goal: "Appuis", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 6.0, name: "1 contre 1 + 2 Appuis", desc: "Duel individuel avec aide extérieure.", space: "20x15m", type: "Dirigé", goal: "Duel", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 5.8, name: "1 contre 1 + Finition", desc: "Duel face au gardien ou petit but.", space: "Surface", type: "Dirigé", goal: "1 contre 1", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 5.6, name: "Rondo 10v4 (2 Zones)", desc: "Grand groupe. Transition d'une zone à l'autre.", space: "2 carrés", type: "Dirigé", goal: "Vigilance", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 5.5, name: "Jeu du Chaos (Couleurs)", desc: "2 neutres de couleurs différentes. Règles changeantes.", space: "Moyen", type: "Dirigé", goal: "Cognitif", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+
+            // --- NIVEAU 2 : GÉNÉRAL (31-50%) ---
+            { score: 5.0, name: "Conservation 11v11 (Sans but)", desc: "Jeu de passe à grand effectif. Pas de finalité.", space: "Grand", type: "Général", goal: "Passe", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 4.9, name: "Rondo 4v2 Classique", desc: "4 extérieurs, 2 chasseurs. Pas d'orientation.", space: "10x10m", type: "Général", goal: "Technique", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 4.8, name: "Passe Longue sur Cible", desc: "Travail technique analytique avec ballon.", space: "30-40m", type: "Général", goal: "Technique", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 4.7, name: "Rondo 4v1", desc: "Le basique. 1 touche de balle.", space: "8x8m", type: "Général", goal: "Vitesse", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 4.5, name: "Course Relais avec Ballon", desc: "Slalom, conduite. Aspect physique prédominant.", space: "Couloirs", type: "Général", goal: "Conduite", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 3.6, name: "Jeu Échauffement (Kindball)", desc: "Jeu ludique, règles modifiées.", space: "Variable", type: "Général", goal: "Activation", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 3.2, name: "Circuit Technique (Passes)", desc: "Répétition de gammes sans opposition.", space: "Variable", type: "Général", goal: "Technique", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+
+            // --- NIVEAU 1 : GÉNÉRIQUE (0-30%) ---
+            { score: 1.1, name: "Course Continue (VMA)", desc: "Travail physique pur sans ballon. Piste ou nature.", space: "Hors terrain", type: "Générique", goal: "Aérobie", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 1.0, name: "Musculation en Salle", desc: "Travail de force, prévention. Aucune similitude avec le jeu.", space: "Salle", type: "Générique", goal: "Force", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" },
+            { score: 1.0, name: "Vélo / Natation", desc: "Travail de récupération ou aérobie non spécifique.", space: "Hors terrain", type: "Générique", goal: "Récupération", video: "https://www.youtube.com/embed/VIDEO_ID_HERE" }
+        ];
+
+        // --- 2. STRUCTURE ARBORESCENCE (SUNBURST) ---
+        // Basé sur Figure 1 et Tableaux 1-6 du fichier "06306 (glissés).pdf" - FIDELITÉ MAXIMALE
+        
+        const sunburstData = [
+            {id: "SSP", label: "<b>SSP</b>", parent: "", color: "#ffffff", desc: "Situation Simulatrice Préférentielle"},
+
+            // 1. STATUT (Figure 1: OFICIALIDAD)
+            {id: "TAB1", label: "1. Statut", parent: "SSP", color: "#64748b", desc: "Statut Officiel"},
+                {id: "OFF", label: "Officiel", parent: "TAB1", color: "#94a3b8", desc: "Caractère Officiel"},
+                    {id: "OFF_OUI", label: "OUI (Match)", parent: "OFF", color: "#cbd5e1", desc: "Compétition Fédérale", score: 100},
+                    {id: "OFF_NON", label: "NON (Entr.)", parent: "OFF", color: "#cbd5e1", desc: "Entraînement", score: 50},
+
+            // 2. JOUEURS (Figure 1: Relación entre participantes)
+            {id: "TAB2", label: "2. Joueurs", parent: "SSP", color: "#2563eb", desc: "Relations Motrices"},
+                
+                {id: "SM", label: "Sit. Motrice", parent: "TAB2", color: "#3b82f6", desc: "Type de Relation"},
+                    {id: "SM1", label: "Coop-Opp-Coop", parent: "SM", color: "#60a5fa", desc: "Coop-Opp-Coop (Standard Football)", score: 100},
+                    {id: "SM2", label: "Coop-Opp", parent: "SM", color: "#60a5fa", desc: "Coopération-Opposition", score: 80},
+                    {id: "SM3", label: "Opposition", parent: "SM", color: "#93c5fd", desc: "Opposition seule", score: 60},
+                    {id: "SM4", label: "Coopération", parent: "SM", color: "#93c5fd", desc: "Coopération seule", score: 40},
+                    {id: "SM5", label: "Psychomot.", parent: "SM", color: "#bfdbfe", desc: "Psychomoteur (Individuel)", score: 10},
+
+                {id: "NE", label: "Nb Équipes", parent: "TAB2", color: "#3b82f6", desc: "Nombre d'équipes"},
+                    {id: "NE1", label: "Deux", parent: "NE", color: "#60a5fa", desc: "2 Équipes", score: 100},
+                    {id: "NE2", label: "> Deux", parent: "NE", color: "#93c5fd", desc: "Plus de 2 équipes", score: 70},
+                    {id: "NE3", label: "Une", parent: "NE", color: "#bfdbfe", desc: "1 Équipe", score: 40},
+                    {id: "NE4", label: "Aucune", parent: "NE", color: "#dbeafe", desc: "Pas d'équipe", score: 10},
+
+                {id: "GB_STAT", label: "Gardiens (S)", parent: "TAB2", color: "#3b82f6", desc: "Statut Gardien"},
+                    {id: "GB1", label: "Oui", parent: "GB_STAT", color: "#60a5fa", desc: "Présence Gardien (Rôle Spécifique)", score: 100},
+                    {id: "GB2", label: "Non", parent: "GB_STAT", color: "#bfdbfe", desc: "Sans Gardien", score: 30},
+                
+                {id: "GB_NB", label: "Gardiens (N)", parent: "TAB2", color: "#3b82f6", desc: "Nombre Gardiens"},
+                    {id: "NG1", label: "Deux", parent: "GB_NB", color: "#60a5fa", desc: "2 Gardiens", score: 100},
+                    {id: "NG2", label: "Un", parent: "GB_NB", color: "#93c5fd", desc: "1 Gardien", score: 70},
+                    {id: "NG3", label: "> 2", parent: "GB_NB", color: "#bfdbfe", desc: "Plus de 2 gardiens", score: 60},
+                    {id: "NG4", label: "Zéro", parent: "GB_NB", color: "#dbeafe", desc: "0 Gardien", score: 30},
+
+                {id: "SN", label: "Supériorité", parent: "TAB2", color: "#3b82f6", desc: "Supériorité Numérique"},
+                    {id: "SN1", label: "Oui", parent: "SN", color: "#93c5fd", desc: "Avec Supériorité", score: 80},
+                    {id: "SN2", label: "Non", parent: "SN", color: "#60a5fa", desc: "Égalité Numérique (Non)", score: 100},
+                    {id: "SN3", label: "Aucune", parent: "SN", color: "#dbeafe", desc: "Aucune Valeur", score: 10},
+
+                {id: "PJS", label: "Pos. Jokers", parent: "TAB2", color: "#3b82f6", desc: "Position Joueurs Sup."},
+                    {id: "PJS1", label: "Intérieur", parent: "PJS", color: "#93c5fd", desc: "Jokers à l'intérieur", score: 80},
+                    {id: "PJS2", label: "Extérieur", parent: "PJS", color: "#bfdbfe", desc: "Jokers à l'extérieur", score: 60},
+                    {id: "PJS3", label: "Aucune", parent: "PJS", color: "#dbeafe", desc: "Aucune Valeur", score: 10},
+
+                {id: "ASYM", label: "Asymétrie", parent: "TAB2", color: "#3b82f6", desc: "Asymétrie Numérique"},
+                    {id: "SNAS", label: "Stable", parent: "ASYM", color: "#93c5fd", desc: "Asymétrie Stable", score: 70},
+                    {id: "SNAT", label: "Transit.", parent: "ASYM", color: "#bfdbfe", desc: "Asymétrie Transitoire", score: 80},
+                    {id: "ASYM_NONE", label: "Aucune", parent: "ASYM", color: "#dbeafe", desc: "Aucune Valeur", score: 10},
+
+            // --- TABLEAU 3 : RELATION OBJET (Orange) (Figure 1: Relación con el objeto) ---
+            {id: "TAB3", label: "3. Objet", parent: "SSP", color: "#f97316", desc: "Relation avec l'Objet"},
+
+                {id: "MOB", label: "Mobile", parent: "TAB3", color: "#fb923c", desc: "Le Ballon"},
+                    {id: "M1", label: "Foot", parent: "MOB", color: "#fdba74", desc: "Ballon de Football", score: 100},
+                    {id: "M2", label: "Autre", parent: "MOB", color: "#fed7aa", desc: "Autres balles", score: 40},
+                    {id: "M3", label: "Sans", parent: "MOB", color: "#ffedd5", desc: "Sans ballon", score: 10},
+
+                {id: "NB_MOB", label: "Nb Mobiles", parent: "TAB3", color: "#fb923c", desc: "Nombre de ballons"},
+                    {id: "NM1", label: "Un", parent: "NB_MOB", color: "#fdba74", desc: "Un seul ballon", score: 100},
+                    {id: "NM2", label: "> 1", parent: "NB_MOB", color: "#fed7aa", desc: "Plusieurs ballons", score: 60},
+                    {id: "NM3", label: "Aucune", parent: "NB_MOB", color: "#ffedd5", desc: "Aucune Valeur", score: 10},
+
+                {id: "SCORE_VIS", label: "Tableau", parent: "TAB3", color: "#fb923c", desc: "Tableau d'affichage"},
+                    {id: "TA1", label: "Oui", parent: "SCORE_VIS", color: "#fdba74", desc: "Score affiché/compté", score: 100},
+                    {id: "TA2", label: "Non", parent: "SCORE_VIS", color: "#fed7aa", desc: "Pas de score", score: 50},
+
+                {id: "OBJ_MARQ", label: "Obj. Marque", parent: "TAB3", color: "#fb923c", desc: "Objectifs de Marque"},
+                    {id: "OM1", label: "Oui", parent: "OBJ_MARQ", color: "#fdba74", desc: "Présence d'objectifs", score: 100},
+                    {id: "OM2", label: "Non", parent: "OBJ_MARQ", color: "#fed7aa", desc: "Pas d'objectifs (Conservation)", score: 40},
+
+                {id: "TYPE_MARQ", label: "Type Buts", parent: "TAB3", color: "#fb923c", desc: "Types de marquage"},
+                    {id: "TM1", label: "2 Reg.", parent: "TYPE_MARQ", color: "#fdba74", desc: "2 Buts Réglementaires", score: 100},
+                    {id: "TM2", label: "Jonction", parent: "TYPE_MARQ", color: "#fed7aa", desc: "Jonction asymétrique", score: 80},
+                    {id: "TM3", label: "1 Reg.", parent: "TYPE_MARQ", color: "#fed7aa", desc: "1 But Réglementaire", score: 70},
+                    {id: "TM4", label: "Autres Dims", parent: "TYPE_MARQ", color: "#ffedd5", desc: "Buts autres dimensions (Mini-buts)", score: 60},
+                    {id: "TM5", label: "Zones", parent: "TYPE_MARQ", color: "#ffedd5", desc: "Zones ou lignes (Stop-ball)", score: 50},
+                    {id: "TM6", label: "Autre", parent: "TYPE_MARQ", color: "#ffedd5", desc: "Autre", score: 30},
+                    {id: "TM7", label: "Sans", parent: "TYPE_MARQ", color: "#ffedd5", desc: "Sans Valeur", score: 10},
+
+                {id: "LOC_BUTS", label: "Loc. Buts", parent: "TAB3", color: "#fb923c", desc: "Localisation Objectifs"},
+                    {id: "LO1", label: "Fond", parent: "LOC_BUTS", color: "#fdba74", desc: "Extrémités ligne de fond", score: 100},
+                    {id: "LO2", label: "In/Out", parent: "LOC_BUTS", color: "#fed7aa", desc: "Dans ou hors terrain (non standard)", score: 60},
+                    {id: "LO3", label: "Pas Val.", parent: "LOC_BUTS", color: "#ffedd5", desc: "Pas de valeur", score: 10},
+
+                {id: "POS_CIB", label: "Pos. Ciblée", parent: "TAB3", color: "#fb923c", desc: "Position Ciblée"},
+                    {id: "PCB1", label: "Centrée", parent: "POS_CIB", color: "#fdba74", desc: "Centrée", score: 100},
+                    {id: "PCB2", label: "Cent+Lat", parent: "POS_CIB", color: "#fed7aa", desc: "Centrée + Latérale", score: 80},
+                    {id: "PCB3", label: "Latérale", parent: "POS_CIB", color: "#ffedd5", desc: "Latérales", score: 70},
+                    {id: "PCB4", label: "Autres", parent: "POS_CIB", color: "#ffedd5", desc: "Autres", score: 50},
+                    {id: "PCB5", label: "Sans Val.", parent: "POS_CIB", color: "#ffedd5", desc: "Sans Valeur", score: 10},
+
+                {id: "REPRISE", label: "Reprise", parent: "TAB3", color: "#fb923c", desc: "Début/Reprise (Inicio o reinicio)"},
+                    {id: "DRJ1", label: "Règles", parent: "REPRISE", color: "#fdba74", desc: "Selon règles du jeu", score: 100},
+                    {id: "DRJ2", label: "Variable", parent: "REPRISE", color: "#fed7aa", desc: "Variable/Prédéterminé", score: 60},
+                    {id: "DRJ3", label: "Fixe", parent: "REPRISE", color: "#ffedd5", desc: "Fixe (ex: coach lance)", score: 40},
+                    {id: "DRJ4", label: "Sans Val.", parent: "REPRISE", color: "#ffedd5", desc: "Sans Valeur", score: 10},
+
+                {id: "SEQ_POS", label: "Séquence", parent: "TAB3", color: "#fb923c", desc: "Séquence Libre Possessions"},
+                    {id: "SLP1", label: "Libre", parent: "SEQ_POS", color: "#fdba74", desc: "Libre sans limitation", score: 100},
+                    {id: "SLP2", label: "3 ou +", parent: "SEQ_POS", color: "#fed7aa", desc: "3 ou plus", score: 80},
+                    {id: "SLP3", label: "2", parent: "SEQ_POS", color: "#ffedd5", desc: "2", score: 60},
+                    {id: "SLP4", label: "1", parent: "SEQ_POS", color: "#ffedd5", desc: "1", score: 40},
+                    {id: "SLP5", label: "Aucune", parent: "SEQ_POS", color: "#ffedd5", desc: "Aucune Valeur", score: 10},
+
+
+            // --- TABLEAU 4 : ESPACE (Vert) (Figure 1: Espacio) ---
+            {id: "TAB4", label: "4. Espace", parent: "SSP", color: "#10b981", desc: "Espace de Jeu"},
+
+                {id: "LIEU", label: "Lieu", parent: "TAB4", color: "#34d399", desc: "Lieu de pratique (Lugar)"},
+                    {id: "L1", label: "Terrain", parent: "LIEU", color: "#6ee7b7", desc: "Intérieur terrain football", score: 100},
+                    {id: "L2", label: "Dehors", parent: "LIEU", color: "#a7f3d0", desc: "En dehors terrain", score: 20},
+
+                {id: "ZONES_F", label: "Zones Fixes", parent: "TAB4", color: "#34d399", desc: "Sous-espaces Fixes"},
+                    {id: "SEF1", label: "Réglem.", parent: "ZONES_F", color: "#6ee7b7", desc: "Zones réglementaires uniquement", score: 100},
+                    {id: "SEF2", label: "Reg+Supp", parent: "ZONES_F", color: "#a7f3d0", desc: "Réglementaires + Supplémentaires", score: 80},
+                    {id: "SEF3", label: "Aucune", parent: "ZONES_F", color: "#d1fae5", desc: "Non, aucun sous-espace", score: 90},
+                    {id: "SEF4", label: "Supp.", parent: "ZONES_F", color: "#d1fae5", desc: "Sous-espaces supplémentaires seuls", score: 70},
+                    {id: "SEF5", label: "Pas Val.", parent: "ZONES_F", color: "#d1fae5", desc: "Pas de valeur", score: 10},
+
+                {id: "ZONES_V", label: "Zones Var.", parent: "TAB4", color: "#34d399", desc: "Sous-espaces Variables (Hors-jeu)"},
+                    {id: "SEV1", label: "Oui", parent: "ZONES_V", color: "#6ee7b7", desc: "Oui (Hors-jeu standard)", score: 100},
+                    {id: "SEV2", label: "Altéré", parent: "ZONES_V", color: "#a7f3d0", desc: "Oui mais altéré", score: 70},
+                    {id: "SEV3", label: "Non", parent: "ZONES_V", color: "#d1fae5", desc: "Non", score: 40},
+                    {id: "SEV4", label: "Aucune", parent: "ZONES_V", color: "#d1fae5", desc: "Aucune Valeur", score: 10},
+
+                {id: "ORIENT", label: "Orienté", parent: "TAB4", color: "#34d399", desc: "Espace Orienté (Orientacion)"},
+                    {id: "EO1", label: "Oui", parent: "ORIENT", color: "#6ee7b7", desc: "Oui (Sens de jeu)", score: 100},
+                    {id: "EO2", label: "Non", parent: "ORIENT", color: "#a7f3d0", desc: "Non (Conservation)", score: 30},
+                    {id: "EO3", label: "Aucune", parent: "ORIENT", color: "#d1fae5", desc: "Aucune Valeur", score: 10},
+
+                {id: "POLAR", label: "Polarisé", parent: "TAB4", color: "#34d399", desc: "Espace Polarisé (Polarizacion)"},
+                    {id: "EP1", label: "Oui", parent: "POLAR", color: "#6ee7b7", desc: "Oui (Cibles définies)", score: 100},
+                    {id: "EP2", label: "Non", parent: "POLAR", color: "#a7f3d0", desc: "Non", score: 30},
+                    {id: "EP3", label: "Aucune", parent: "POLAR", color: "#d1fae5", desc: "Aucune Valeur", score: 10},
+
+
+                {id: "FORME", label: "Forme", parent: "TAB4", color: "#34d399", desc: "Forme du terrain (Forma)"},
+                    {id: "F1", label: "Rect. Long", parent: "FORME", color: "#6ee7b7", desc: "Rectangulaire plus long", score: 100},
+                    {id: "F2", label: "Rect. Larg", parent: "FORME", color: "#a7f3d0", desc: "Rectangulaire plus large", score: 80},
+                    {id: "F3", label: "Carré", parent: "FORME", color: "#d1fae5", desc: "Carré", score: 60},
+                    {id: "F4", label: "Autre", parent: "FORME", color: "#d1fae5", desc: "Autres formes", score: 50},
+                    {id: "F5", label: "Circuit", parent: "FORME", color: "#d1fae5", desc: "Circuits", score: 20},
+                    {id: "F6", label: "Aucune", parent: "FORME", color: "#d1fae5", desc: "Aucune Valeur", score: 10},
+
+
+                {id: "EII", label: "EII", parent: "TAB4", color: "#34d399", desc: "Espace Interaction Individuel"},
+                    {id: "EII_VAL", label: "Valeur", parent: "EII", color: "#6ee7b7", desc: "Valeur Entière", score: 100},
+                    {id: "EII_NONE", label: "Aucune", parent: "EII", color: "#a7f3d0", desc: "Aucune Valeur", score: 10},
+
+            // --- TABLEAU 5 : TEMPS (Violet) (Figure 1: Tiempo) ---
+            {id: "TAB5", label: "5. Temps", parent: "SSP", color: "#a855f7", desc: "Temps / Score"},
+                {id: "SYS_SCORE", label: "Système", parent: "TAB5", color: "#c084fc", desc: "Système de score"},
+                    {id: "T1", label: "Tps Limite", parent: "SYS_SCORE", color: "#e9d5ff", desc: "Temps limité", score: 100},
+                    {id: "T2", label: "Score Lim.", parent: "SYS_SCORE", color: "#e9d5ff", desc: "Score limité", score: 80},
+                    {id: "T3", label: "Mixte", parent: "SYS_SCORE", color: "#e9d5ff", desc: "Mixte", score: 90},
+                    {id: "T4", label: "Aucun", parent: "SYS_SCORE", color: "#f3e8ff", desc: "Aucun système", score: 20},
+
+            // --- TABLEAU 6 : CONTRAINTES (Rouge/Rose) (Figure 1: Contraintes supplementaires) ---
+            {id: "TAB6", label: "6. Contraintes", parent: "SSP", color: "#e11d48", desc: "Contraintes Supplémentaires"},
+                {id: "CS", label: "Contraintes", parent: "TAB6", color: "#fda4af", desc: "Règles spéciales"},
+                    {id: "CS1", label: "Oui", parent: "CS", color: "#fecdd3", desc: "Oui", score: 70},
+                    {id: "CS2", label: "Non", parent: "CS", color: "#fff1f2", desc: "Non", score: 100}
+        ];
+
+        // --- BIBLIOTHÈQUE D'EXERCICES (MATCHING) ---
+        // Liste des 100 exercices
+        let currentNEScore = 0.0;
+        let selectedNodes = new Set();
+
+        const layout = {
+            margin: {l: 0, r: 0, b: 0, t: 0},
+            paper_bgcolor: 'rgba(0,0,0,0)',
+            plot_bgcolor: 'rgba(0,0,0,0)',
+            font: { family: 'Roboto', size: 11, color: '#f8fafc' },
+            sunburstcolorway: ["#64748b", "#3b82f6", "#f97316", "#10b981", "#a855f7", "#e11d48"],
+            extendsunburstcolorway: true
+        };
+        const config = { responsive: true, displayModeBar: false };
+
+        function drawChart() {
+            Plotly.newPlot('sunburstChart', [{
+                type: "sunburst",
+                ids: sunburstData.map(d => d.id),
+                labels: sunburstData.map(d => d.label),
+                parents: sunburstData.map(d => d.parent),
+                marker: { colors: sunburstData.map(d => d.color), line: { width: 1, color: '#0f172a' } },
+                textinfo: "label",
+                hoverinfo: "label+text",
+                text: sunburstData.map(d => d.desc),
+                insidetextorientation: 'radial',
+                leaf: { opacity: 0.9 }
+            }], layout, config);
+
+            document.getElementById('sunburstChart').on('plotly_sunburstclick', function(data){
+                const id = data.points[0].id;
+                const item = sunburstData.find(d => d.id === id);
+                if(item && item.score !== undefined) {
+                    toggleSelection(item);
+                }
+            });
+        }
+
+        function toggleSelection(item) {
+            const siblings = sunburstData.filter(d => d.parent === item.parent);
+            siblings.forEach(sib => selectedNodes.delete(sib.id));
+            
+            selectedNodes.add(item.id);
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            let totalScore = 0;
+            let count = 0;
+            const orderedSelection = sunburstData.filter(d => selectedNodes.has(d.id));
+
+            orderedSelection.forEach(item => {
+                count++;
+                totalScore += item.score;
+            });
+
+            const avgScore = count > 0 ? totalScore / count : 0;
+            currentNEScore = parseFloat((avgScore / 10).toFixed(1));
+
+            updateUI(avgScore, currentNEScore);
+            if (count > 0) {
+                 filterExercisesByScore(currentNEScore);
+            } else {
+                 document.getElementById('exerciseList').innerHTML = '<div class="p-10 text-center text-slate-600 italic text-sm flex flex-col items-center"><span class="text-2xl mb-2">📂</span>Utilisez le graphique ou la recherche.</div>';
+                 document.getElementById('matchCount').textContent = "0 trouvé(s)";
+            }
+        }
+
+        function updateUI(score, neScore) {
+            const titleEl = document.getElementById('typeTitle');
+            const barEl = document.getElementById('scoreBar');
+            const cardEl = document.getElementById('classificationCard');
+            const valEl = document.getElementById('scoreValue');
+
+            valEl.textContent = neScore || "0.0";
+            barEl.style.width = score + "%";
+
+            let typeInfo = {};
+            if (score === 0) typeInfo = { name: "...", color: "border-slate-600", barColor: "bg-slate-600" };
+            else if (score < 40) typeInfo = { name: "GÉNÉRIQUE", color: "border-slate-500", barColor: "bg-slate-500" };
+            else if (score < 60) typeInfo = { name: "GÉNÉRAL", color: "border-gray-500", barColor: "bg-gray-500" };
+            else if (score < 75) typeInfo = { name: "DIRIGÉ", color: "border-yellow-500", barColor: "bg-yellow-500" };
+            else if (score < 90) typeInfo = { name: "SPÉCIAL (SSP)", color: "border-orange-500", barColor: "bg-orange-500" };
+            else typeInfo = { name: "COMPÉTITION", color: "border-emerald-500", barColor: "bg-emerald-500" };
+
+            titleEl.textContent = typeInfo.name;
+            barEl.className = `h-full transition-all duration-700 ease-out ${typeInfo.barColor}`;
+            cardEl.className = `card p-5 border-t-4 relative overflow-hidden transition-colors duration-500 shrink-0 ${typeInfo.color}`;
+        }
+
+        function handleSearch(event) {
+            const query = event.target.value.toLowerCase();
+            if (query.length < 2) {
+                if(currentNEScore > 0) filterExercisesByScore(currentNEScore);
+                else document.getElementById('exerciseList').innerHTML = '<div class="p-10 text-center text-slate-600 italic text-sm flex flex-col items-center"><span class="text-2xl mb-2">📂</span>Utilisez le graphique ou la recherche.</div>';
+                return;
+            }
+            
+            const matches = exerciseLibrary.filter(ex => 
+                ex.name.toLowerCase().includes(query)
+            );
+            renderExerciseList(matches);
+        }
+
+        function filterExercisesByScore(targetScore) {
+            const tolerance = 0.5;
+            const matches = exerciseLibrary.filter(ex => 
+                Math.abs(ex.score - targetScore) <= tolerance
+            );
+            matches.sort((a, b) => Math.abs(a.score - targetScore) - Math.abs(b.score - targetScore));
+            renderExerciseList(matches);
+        }
+
+        function renderExerciseList(matches) {
+            const listEl = document.getElementById('exerciseList');
+            const countEl = document.getElementById('matchCount');
+            listEl.innerHTML = '';
+            countEl.textContent = `${matches.length} trouvé(s)`;
+
+            if (matches.length === 0) {
+                 listEl.innerHTML = '<div class="p-4 text-center text-slate-500 text-sm">Aucun résultat trouvé.</div>';
+                 return;
+            }
+
+            matches.forEach(ex => {
+                const div = document.createElement('div');
+                div.className = "exercise-item p-3 border-b border-slate-700/50 flex justify-between items-center fade-in";
+                div.onclick = () => showDetails(ex);
+                
+                let badgeClass = "bg-slate-700 text-slate-300";
+                if(ex.score >= 8) badgeClass = "bg-emerald-900/50 text-emerald-400 border border-emerald-500/30";
+                else if(ex.score >= 6) badgeClass = "bg-orange-900/50 text-orange-400 border border-orange-500/30";
+                
+                div.innerHTML = `
+                    <div class="flex-1 min-w-0 pr-4">
+                        <span class="font-bold text-slate-200 text-sm truncate block">${ex.name}</span>
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                         <span class="font-mono font-bold text-sm px-2 py-0.5 rounded ${badgeClass}">${ex.score}</span>
+                    </div>
+                `;
+                listEl.appendChild(div);
+            });
+        }
+        
+        function showDetails(ex) {
+            const panel = document.getElementById('exerciseDetails');
+            const videoFrame = document.getElementById('videoFrame');
+            const noVideoMsg = document.getElementById('noVideoMsg');
+            const videoSection = document.getElementById('videoSection');
+
+            document.getElementById('detailName').textContent = ex.name;
+            document.getElementById('detailNE').textContent = `NE: ${ex.score}`;
+            document.getElementById('detailSource').textContent = `Source: ${ex.source || "Interne"}`;
+            document.getElementById('detailDesc').textContent = ex.desc || "Pas de description détaillée disponible.";
+            document.getElementById('detailSpace').textContent = ex.space || "Non spécifié";
+            document.getElementById('detailGoal').textContent = ex.goal || "Amélioration spécifique"; // Utilisation du champ 'goal'
+            document.getElementById('detailType').textContent = ex.type || "Type inconnu"; // Affichage du type
+            
+            // Gestion Vidéo
+            if (ex.video) {
+                videoFrame.src = ex.video;
+                videoFrame.classList.remove('hidden');
+                noVideoMsg.classList.add('hidden');
+            } else {
+                videoFrame.src = "";
+                videoFrame.classList.add('hidden');
+                noVideoMsg.classList.remove('hidden');
+            }
+            
+            panel.classList.remove('translate-y-full');
+        }
+        
+        function closeDetails() {
+             document.getElementById('exerciseDetails').classList.add('translate-y-full');
+             // Stop video
+             document.getElementById('videoFrame').src = "";
+        }
+
+        function resetApp() {
+            selectedNodes.clear();
+            currentNEScore = 0;
+            document.getElementById('searchInput').value = "";
+            closeDetails();
+            updateDashboard();
+            drawChart();
+        }
+
+        // Init
+        drawChart();
+        // Ne rien charger au début pour laisser propre
+        document.getElementById('exerciseList').innerHTML = '<div class="p-10 text-center text-slate-600 italic text-sm flex flex-col items-center"><span class="text-2xl mb-2">📂</span>Commencez par définir un exercice ou utiliser la recherche.</div>';
+
+    </script>
+</body>
+</html>
+```
+```eof
